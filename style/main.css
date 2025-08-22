@@ -1198,3 +1198,43 @@ html, body {
 .tile.tile-position-4-2 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 1)) !important; }
 .tile.tile-position-4-3 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 2)) !important; }
 .tile.tile-position-4-4 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 3)) !important; }
+
+/* === Bottom-right number badge on each tile === */
+.tile .tile-inner {
+  position: relative;
+}
+
+/* The badge itself */
+.tile .tile-inner::after {
+  position: absolute;
+  right: 4px;                /* small right gutter */
+  bottom: 4px;               /* small bottom gutter */
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.6); /* thin, light-grey-ish on dark bg */
+  border-radius: 4px;
+  color: #fff;               /* white text */
+  background: rgba(0,0,0,0.25); /* subtle contrast so it’s readable on any tile */
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+
+  /* Size logic: cap at 25% of the tile’s height */
+  /* If you have --tile-size from our earlier responsive block, this stays perfectly proportional. */
+  font-size: calc(min(25%, var(--tile-size) * 0.22));
+  /* Prevent the badge from growing past 25% in case fonts render tall */
+  max-height: 25%;
+  display: inline-block;
+}
+
+/* Map values to text. Add more if you support bigger tiles. */
+.tile.tile-2    .tile-inner::after { content: "2"; }
+.tile.tile-4    .tile-inner::after { content: "4"; }
+.tile.tile-8    .tile-inner::after { content: "8"; }
+.tile.tile-16   .tile-inner::after { content: "16"; }
+.tile.tile-32   .tile-inner::after { content: "32"; }
+.tile.tile-64   .tile-inner::after { content: "64"; }
+.tile.tile-128  .tile-inner::after { content: "128"; }
+.tile.tile-256  .tile-inner::after { content: "256"; }
+.tile.tile-512  .tile-inner::after { content: "512"; }
+.tile.tile-1024 .tile-inner::after { content: "1024"; }
+.tile.tile-2048 .tile-inner::after { content: "2048"; }
