@@ -207,6 +207,54 @@
 <!-- keep the existing application startup after this -->
 <script src="js/application.js"></script>
 
+  <!-- ===== Share / Link Generator (bottom of page) ===== -->
+  <style>
+    .share-section{max-width:720px;margin:24px auto 40px;padding:16px;border:1px solid #ddd;border-radius:8px;font-family:inherit}
+    .share-grid{display:grid;grid-template-columns:80px 1fr;gap:8px 12px;align-items:center}
+    .share-row{display:contents}
+    .share-row input[type="text"]{width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-family:inherit}
+    .share-output{display:flex;gap:8px;margin-top:12px}
+    .share-output input{flex:1;padding:8px;border:1px solid #bbb;border-radius:4px;font-family:inherit}
+    .share-actions{display:flex;gap:10px;align-items:center;margin-top:8px}
+    .share-actions button{padding:6px 10px;border:1px solid #888;border-radius:4px;background:#f7f7f7;cursor:pointer}
+    .share-actions a{word-break:break-all}
+    .share-heading{font-weight:600;margin:0 0 8px}
+    .share-sub{color:#666;margin:0 0 12px}
+    @media (max-width:560px){.share-grid{grid-template-columns:1fr}.share-grid label{margin-top:8px}}
+  </style>
+
+  <div class="share-section">
+    <p class="share-heading">Create a shareable link</p>
+    <p class="share-sub">Enter a name and any tile image URLs. The game updates live, and the link includes your custom images.</p>
+    <form id="share-form" class="share-grid" onsubmit="return false;">
+      <div class="share-row">
+        <label for="share-name">Name</label>
+        <input id="share-name" type="text" placeholder="e.g., My Cute Cats Set">
+      </div>
+      <!-- Tile URL fields -->
+      <div class="share-row"><label for="url-2">tile2</label><input id="url-2" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-4">tile4</label><input id="url-4" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-8">tile8</label><input id="url-8" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-16">tile16</label><input id="url-16" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-32">tile32</label><input id="url-32" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-64">tile64</label><input id="url-64" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-128">tile128</label><input id="url-128" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-256">tile256</label><input id="url-256" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-512">tile512</label><input id="url-512" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-1024">tile1024</label><input id="url-1024" type="text" placeholder="https://..."></div>
+      <div class="share-row"><label for="url-2048">tile2048</label><input id="url-2048" type="text" placeholder="https://..."></div>
+    </form>
+    <div class="share-output">
+      <input id="share-output" type="text" readonly>
+      <button id="share-copy" type="button">Copy</button>
+    </div>
+    <div class="share-actions">
+      <a id="share-anchor" href="#" target="_blank" rel="noopener">Open this custom game</a>
+    </div>
+  </div>
+
+  <script src="js/share_link.js"></script>
+    
 </body>
 
 </html>
