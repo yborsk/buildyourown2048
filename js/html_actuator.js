@@ -61,8 +61,23 @@ HTMLActuator.prototype.addTile = function (tile) {
 
   this.applyClasses(wrapper, classes);
 
-  inner.classList.add("tile-inner");
-  inner.textContent = tile.value;
+    inner.classList.add("tile-inner");
+
+  // Prefer custom images if provided via URL params
+  var imgUrl = (window.customTileImages && window.customTileImages[tile.value]) || null;
+
+  if (imgUrl) {
+    var img = document.createElement("img");
+    img.src = imgUrl;
+    img.alt = tile.value;
+    img.style.width = "100%";
+    img.style.height = "100%";
+    inner.appendChild(img);
+  } else {
+    // Fallback: show the number
+    inner.textContent = tile.value;
+  }
+
 
   if (tile.previousPosition) {
     // Make sure that the tile gets rendered in the previous position first
