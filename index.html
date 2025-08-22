@@ -399,68 +399,62 @@
 </script>
 
 <script>
-  (function () {
-    var root = document.documentElement;
-    var params = new URLSearchParams(location.search);
-    var checkbox = document.getElementById('share-nums');
-    var out = document.getElementById('share-output');   // text field showing the custom URL
-    var link = document.getElementById('share-anchor');   // "Open this custom game" link
+(function () {
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  var checkbox = document.getElementById('share-nums');   // the “Show tile numbers” checkbox
+  var out = document.getElementById('share-output');       // the Copy URL box
+  var form = document.getElementById('share-form');
+  var copyBtn = document.getElementById('share-copy');
 
-    function setVisibility(show) {
-      root.setAttribute('data-show-nums', show ? '1' : '0');
+  function setVisibility(show) {
+    root.setAttribute('data-show-nums', show ? '1' : '0');
+  }
+
+  function setParamOnUrlString(urlString, show) {
+    try {
+      var u = new URL(urlString, location.origin);
+      u.searchParams.set('nums', show ? '1' : '0');
+      return u.toString();
+    } catch (e) {
+      return urlString; // if it's empty / not a full URL yet
     }
+  }
 
-    function setParamOnUrlString(urlString, show) {
-      try {
-        var u = new URL(urlString, location.origin);
-        u.searchParams.set('nums', show ? '1' : '0');
-        return u.toString();
-      } catch (e) {
-        return urlString; // if it's empty or not a full URL yet, leave it
-      }
-    }
+  function updateOutField() {
+    if (!out || !out.value) return;
+    var show = checkbox ? checkbox.checked : true;
+    out.value = setParamOnUrlString(out.value, show);
+  }
 
-    function updateShareWidgets() {
-      if (out && out.value) out.value = setParamOnUrlString(out.value, checkbox.checked);
-      if (link && link.getAttribute('href')) {
-        link.setAttribute('href', setParamOnUrlString(link.getAttribute('href'), checkbox.checked));
-      }
-    }
+  // Initialize from current URL (?nums=1/0) without changing the address bar
+  var initial = params.get('nums');
+  var show = (initial === null) ? true : initial !== '0';
+  setVisibility(show);
+  if (checkbox) checkbox.checked = show;
 
-    // 1) Initialize from URL (?nums=1/0). Default to ON if not present.
-    var initial = params.get('nums');
-    var show = (initial === null) ? true : initial !== '0';
-    setVisibility(show);
-    if (checkbox) checkbox.checked = show;
+  // When user toggles the checkbox: just change visibility + the Copy URL box
+  if (checkbox) {
+    checkbox.addEventListener('change', function () {
+      setVisibility(checkbox.checked);
+      updateOutField();
+    });
+  }
 
-    // 2) Keep the page URL in sync when user clicks the checkbox (no reload).
-    if (checkbox) {
-      checkbox.addEventListener('change', function () {
-        var showNow = checkbox.checked;
-        setVisibility(showNow);
+  // If the form regenerates the share URL, re-apply the nums param to the output box
+  if (form) {
+    form.addEventListener('input', function () { setTimeout(updateOutField, 0); });
+    form.addEventListener('change', function () { setTimeout(updateOutField, 0); });
+  }
 
-        var cur = new URL(location.href);
-        cur.searchParams.set('nums', showNow ? '1' : '0');
-        history.replaceState(null, '', cur.toString());
+  // Right before copying, make sure the output box is up to date
+  if (copyBtn) copyBtn.addEventListener('click', updateOutField);
 
-        updateShareWidgets();
-      });
-    }
-
-    // 3) Whenever the generator updates the custom URL/link, append the nums param too.
-    //    We listen to changes on the form and the output field so we piggyback on your existing generator logic.
-    var form = document.getElementById('share-form');
-    if (form) {
-      form.addEventListener('input', updateShareWidgets);
-      form.addEventListener('change', updateShareWidgets);
-    }
-    if (out) {
-      out.addEventListener('input', updateShareWidgets);
-      // Run once at load (in case a URL is prefilled)
-      setTimeout(updateShareWidgets, 0);
-    }
-  })();
+  // One initial pass
+  setTimeout(updateOutField, 0);
+})();
 </script>
+
 
     
 </body>
