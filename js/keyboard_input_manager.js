@@ -165,12 +165,17 @@ KeyboardInputManager.prototype.listen = function () {
   keepPlaying.addEventListener(this.eventTouchend, this.keepPlaying.bind(this));
 };
 
-KeyboardInputManager.prototype.restart = function (event) {
-  event.preventDefault();
-  this.emit("restart");
-};
+// Restart button (New Game)
+var retry = document.getElementsByClassName("retry-button")[0];
+if (retry) {
+  retry.addEventListener("click", this.restart.bind(this));
+  retry.addEventListener(this.eventTouchend, this.restart.bind(this));
+}
 
-KeyboardInputManager.prototype.keepPlaying = function (event) {
-  event.preventDefault();
-  this.emit("keepPlaying");
-};
+// Keep playing button
+var keepPlaying = document.getElementsByClassName("keep-playing-button")[0];
+if (keepPlaying) {
+  keepPlaying.addEventListener("click", this.keepPlaying.bind(this));
+  keepPlaying.addEventListener(this.eventTouchend, this.keepPlaying.bind(this));
+}
+
