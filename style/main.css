@@ -1224,3 +1224,5 @@ html, body {
   );
 }
 
+/* Hide numeric badges when the toggle is off */
+html[data-show-nums="0"] .tile-badge { display: none !important; }
