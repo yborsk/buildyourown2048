@@ -319,6 +319,38 @@
     }
   });
 </script>
+
+<script>
+  (function () {
+    var KEY = 'byo2048-theme';
+    var checkbox = document.getElementById('theme-switch');
+    var label = document.getElementById('theme-label');
+
+    function applyTheme(mode) {
+      document.documentElement.setAttribute('data-theme', mode);
+      if (checkbox) checkbox.checked = (mode === 'dark');
+      if (label) label.textContent = (mode === 'dark' ? 'Dark' : 'Light');
+      try { localStorage.setItem(KEY, mode); } catch (e) {}
+      // Also tint the browser UI for PWA-ish feel:
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', mode === 'dark' ? '#121212' : '#ffffff');
+    }
+
+    // On load: prefer stored theme; else prefers-color-scheme; else light
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (e) {}
+    var preferred = saved || (window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(preferred);
+
+    if (checkbox) {
+      checkbox.addEventListener('change', function () {
+        applyTheme(checkbox.checked ? 'dark' : 'light');
+      });
+    }
+  })();
+</script>
+
     
 </body>
 
