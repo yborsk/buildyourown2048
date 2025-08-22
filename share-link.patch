@@ -1,4 +1,44 @@
 *** Begin Patch
+*** Add File: js/url_theme.js
++// js/url_theme.js
++(function () {
++  // Update/extend this list if you support more values
++  const supportedValues = [2,4,8,16,32,64,128,256,512,1024,2048,4096,8192];
++
++  function readOverridesFromQuery() {
++    const params = new URLSearchParams(window.location.search);
++    const overrides = Object.create(null);
++
++    for (const v of supportedValues) {
++      const key = "tile" + v; // e.g., tile2, tile4
++      if (params.has(key)) {
++        // If repeated, prefer the last
++        const url = params.getAll(key).slice(-1)[0];
++        try {
++          const u = new URL(url, window.location.href);
++          if (u.protocol === "http:" || u.protocol === "https:" || u.protocol === "data:") {
++            overrides[v] = u.href;
++          }
++        } catch (_) {
++          // Ignore invalid URLs
++        }
++      }
++    }
++    return overrides;
++  }
++
++  function applyFromLocation() {
++    const o = readOverridesFromQuery();
++    if (Object.keys(o).length) {
++      window.customTileImages = o;
++    }
++  }
++
++  window.UrlTheme = { applyFromLocation };
++})();
++
+*** End Patch
+*** Begin Patch
 *** Add File: js/share_link.js
 +// js/share_link.js
 +(function () {
@@ -6,20 +46,17 @@
 +  const VALUES = [2,4,8,16,32,64,128,256,512,1024,2048];
 +
 +  function el(id) { return document.getElementById(id); }
-+
 +  function encode(v) { return encodeURIComponent(v); }
 +
 +  function currentBaseUrl() {
-+    // Preserve current origin + path (no query), so it works on localhost or GitHub Pages
++    // Preserve current origin + path (no query)
 +    return window.location.origin + window.location.pathname;
 +  }
 +
 +  function buildQuery(params) {
 +    const parts = [];
 +    for (const [k, v] of Object.entries(params)) {
-+      if (v != null && v !== "") {
-+        parts.push(k + "=" + encode(String(v)));
-+      }
++      if (v != null && v !== "") parts.push(k + "=" + encode(String(v)));
 +    }
 +    return parts.join("&");
 +  }
@@ -35,9 +72,8 @@
 +  }
 +
 +  function applyOverridesToGame(overrides) {
-+    // Merge into window.customTileImages and trigger a soft redraw by simulating a no-op actuate on next move
 +    window.customTileImages = Object.assign({}, window.customTileImages || {}, overrides);
-+    // Optional: force a re-render by dispatching a fake resize (many 2048 forks redraw then)
++    // Nudge a re-render for some layouts
 +    window.dispatchEvent(new Event("resize"));
 +  }
 +
@@ -45,9 +81,7 @@
 +    const { name, overrides } = readFormValues();
 +    const params = {};
 +    if (name) params.name = name;
-+    for (const [v, url] of Object.entries(overrides)) {
-+      params["tile" + v] = url;
-+    }
++    for (const [v, url] of Object.entries(overrides)) params["tile" + v] = url;
 +    const qs = buildQuery(params);
 +    return currentBaseUrl() + (qs ? "?" + qs : "");
 +  }
@@ -78,15 +112,12 @@
 +    if (name) el("share-name").value = name;
 +    for (const v of VALUES) {
 +      const key = "tile" + v;
-+      if (p.has(key)) {
-+        el("url-" + v).value = p.get(key);
-+      }
++      if (p.has(key)) el("url-" + v).value = p.get(key);
 +    }
 +  }
 +
 +  function wireEvents() {
 +    el("share-form").addEventListener("input", () => {
-+      // live-update game + link as users type
 +      const { overrides } = readFormValues();
 +      applyOverridesToGame(overrides);
 +      updateOutput();
@@ -101,7 +132,6 @@
 +    wireEvents();
 +  }
 +
-+  // Initialize after DOM is ready
 +  if (document.readyState === "loading") {
 +    document.addEventListener("DOMContentLoaded", init);
 +  } else {
@@ -110,18 +140,22 @@
 +})();
 +
 *** End Patch
-
 *** Begin Patch
 *** Update File: index.html
 @@
+   <script src="js/tile.js"></script>
+   <script src="js/grid.js"></script>
+   <script src="js/html_actuator.js"></script>
+   <script src="js/keyboard_input_manager.js"></script>
    <script src="js/local_storage_manager.js"></script>
-   <!-- Read ?tile2=...&tile4=... overrides before the game starts -->
-   <script src="js/url_theme.js"></script>
-   <script>
-     window.UrlTheme && window.UrlTheme.applyFromLocation();
-   </script>
++  <!-- Read ?tile2=...&tile4=... overrides before the game starts -->
++  <script src="js/url_theme.js"></script>
++  <script>
++    window.UrlTheme && window.UrlTheme.applyFromLocation();
++  </script>
    <script src="js/game_manager.js"></script>
-   <script src="js/application.js"></script>
+-  <script src="js/application.js"></script>
++  <script src="js/application.js"></script> <!-- make sure this is included only once -->
 +
 +  <!-- ===== Share / Link Generator (bottom of page) ===== -->
 +  <style>
@@ -172,4 +206,38 @@
 +  <script src="js/share_link.js"></script>
  </body>
  </html>
+*** End Patch
+*** Begin Patch
+*** Update File: js/html_actuator.js
+@@
+   var classes = ["tile", "tile-" + tile.value, positionClass];
+ 
+   if (tile.value > 2048) classes.push("tile-super");
+ 
+   this.applyClasses(wrapper, classes);
+ 
+-  inner.classList.add("tile-inner");
+-  inner.textContent = tile.value;
++  inner.classList.add("tile-inner");
++
++  // Prefer custom images if provided via URL params (set by js/url_theme.js)
++  var imgUrl = (window.customTileImages && window.customTileImages[tile.value]) || null;
++
++  if (imgUrl) {
++    var img = document.createElement("img");
++    img.src = imgUrl;
++    img.alt = tile.value;
++    img.style.width = "100%";
++    img.style.height = "100%";
++    img.style.objectFit = "cover";
++    inner.appendChild(img);
++  } else {
++    // Fallback: display the number as before
++    inner.textContent = tile.value;
++  }
+ 
+   if (tile.previousPosition) {
+     // Make sure that the tile gets rendered in the previous position first
+     window.requestAnimationFrame(function () {
+       classes[2] = self.positionClass({ x: tile.x, y: tile.y });
 *** End Patch
