@@ -154,29 +154,23 @@ KeyboardInputManager.prototype.listen = function () {
     }
   });
 
-// Restart button (New Game) — support both class names and null-safety
-var retry =
-  document.querySelector(".retry-button, .restart-button");
-
-if (retry) {
+  // Restart button
+  var retry = document.getElementsByClassName("retry-button")[0];
   retry.addEventListener("click", this.restart.bind(this));
   retry.addEventListener(this.eventTouchend, this.restart.bind(this));
-}
-
-// As a fallback, also use event delegation in case the button is re-rendered later
-document.addEventListener("click", (e) => {
-  var t = e.target;
-  if (
-    t &&
-    (t.matches(".retry-button") || t.matches(".restart-button"))
-  ) {
-    e.preventDefault();
-    this.restart.call(this, e);
-  }
-});
 
   // Keep playing button
   var keepPlaying = document.getElementsByClassName("keep-playing-button")[0];
   keepPlaying.addEventListener("click", this.keepPlaying.bind(this));
   keepPlaying.addEventListener(this.eventTouchend, this.keepPlaying.bind(this));
+};
+
+KeyboardInputManager.prototype.restart = function (event) {
+  event.preventDefault();
+  this.emit("restart");
+};
+
+KeyboardInputManager.prototype.keepPlaying = function (event) {
+  event.preventDefault();
+  this.emit("keepPlaying");
 };
