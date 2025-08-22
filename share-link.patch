@@ -1,0 +1,175 @@
+*** Begin Patch
+*** Add File: js/share_link.js
++// js/share_link.js
++(function () {
++  // Which tile values we expose in the mini form
++  const VALUES = [2,4,8,16,32,64,128,256,512,1024,2048];
++
++  function el(id) { return document.getElementById(id); }
++
++  function encode(v) { return encodeURIComponent(v); }
++
++  function currentBaseUrl() {
++    // Preserve current origin + path (no query), so it works on localhost or GitHub Pages
++    return window.location.origin + window.location.pathname;
++  }
++
++  function buildQuery(params) {
++    const parts = [];
++    for (const [k, v] of Object.entries(params)) {
++      if (v != null && v !== "") {
++        parts.push(k + "=" + encode(String(v)));
++      }
++    }
++    return parts.join("&");
++  }
++
++  function readFormValues() {
++    const name = el("share-name").value.trim();
++    const overrides = {};
++    for (const v of VALUES) {
++      const val = el("url-" + v).value.trim();
++      if (val) overrides[v] = val;
++    }
++    return { name, overrides };
++  }
++
++  function applyOverridesToGame(overrides) {
++    // Merge into window.customTileImages and trigger a soft redraw by simulating a no-op actuate on next move
++    window.customTileImages = Object.assign({}, window.customTileImages || {}, overrides);
++    // Optional: force a re-render by dispatching a fake resize (many 2048 forks redraw then)
++    window.dispatchEvent(new Event("resize"));
++  }
++
++  function generateLink() {
++    const { name, overrides } = readFormValues();
++    const params = {};
++    if (name) params.name = name;
++    for (const [v, url] of Object.entries(overrides)) {
++      params["tile" + v] = url;
++    }
++    const qs = buildQuery(params);
++    return currentBaseUrl() + (qs ? "?" + qs : "");
++  }
++
++  function updateOutput() {
++    const link = generateLink();
++    const out = el("share-output");
++    const a = el("share-anchor");
++    out.value = link;
++    a.href = link;
++    a.textContent = "Open this custom game";
++  }
++
++  function copyToClipboard() {
++    const out = el("share-output");
++    out.select();
++    out.setSelectionRange(0, out.value.length);
++    document.execCommand("copy");
++    const btn = el("share-copy");
++    const old = btn.textContent;
++    btn.textContent = "Copied!";
++    setTimeout(() => (btn.textContent = old), 1200);
++  }
++
++  function prefillFromParams() {
++    const p = new URLSearchParams(window.location.search);
++    const name = p.get("name") || "";
++    if (name) el("share-name").value = name;
++    for (const v of VALUES) {
++      const key = "tile" + v;
++      if (p.has(key)) {
++        el("url-" + v).value = p.get(key);
++      }
++    }
++  }
++
++  function wireEvents() {
++    el("share-form").addEventListener("input", () => {
++      // live-update game + link as users type
++      const { overrides } = readFormValues();
++      applyOverridesToGame(overrides);
++      updateOutput();
++    });
++    el("share-copy").addEventListener("click", copyToClipboard);
++  }
++
++  function init() {
++    if (!el("share-form")) return;
++    prefillFromParams();
++    updateOutput();
++    wireEvents();
++  }
++
++  // Initialize after DOM is ready
++  if (document.readyState === "loading") {
++    document.addEventListener("DOMContentLoaded", init);
++  } else {
++    init();
++  }
++})();
++
+*** End Patch
+
+*** Begin Patch
+*** Update File: index.html
+@@
+   <script src="js/local_storage_manager.js"></script>
+   <!-- Read ?tile2=...&tile4=... overrides before the game starts -->
+   <script src="js/url_theme.js"></script>
+   <script>
+     window.UrlTheme && window.UrlTheme.applyFromLocation();
+   </script>
+   <script src="js/game_manager.js"></script>
+   <script src="js/application.js"></script>
++
++  <!-- ===== Share / Link Generator (bottom of page) ===== -->
++  <style>
++    .share-section{max-width:720px;margin:24px auto 40px;padding:16px;border:1px solid #ddd;border-radius:8px;font-family:inherit}
++    .share-grid{display:grid;grid-template-columns:80px 1fr;gap:8px 12px;align-items:center}
++    .share-row{display:contents}
++    .share-row input[type="text"]{width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-family:inherit}
++    .share-output{display:flex;gap:8px;margin-top:12px}
++    .share-output input{flex:1;padding:8px;border:1px solid #bbb;border-radius:4px;font-family:inherit}
++    .share-actions{display:flex;gap:10px;align-items:center;margin-top:8px}
++    .share-actions button{padding:6px 10px;border:1px solid #888;border-radius:4px;background:#f7f7f7;cursor:pointer}
++    .share-actions a{word-break:break-all}
++    .share-heading{font-weight:600;margin:0 0 8px}
++    .share-sub{color:#666;margin:0 0 12px}
++    @media (max-width:560px){.share-grid{grid-template-columns:1fr}.share-grid label{margin-top:8px}}
++  </style>
++
++  <div class="share-section">
++    <p class="share-heading">Create a shareable link</p>
++    <p class="share-sub">Enter a name and any tile image URLs. The game updates live, and the link includes your custom images.</p>
++    <form id="share-form" class="share-grid" onsubmit="return false;">
++      <div class="share-row">
++        <label for="share-name">Name</label>
++        <input id="share-name" type="text" placeholder="e.g., My Cute Cats Set">
++      </div>
++      <!-- Tile URL fields -->
++      <div class="share-row"><label for="url-2">tile2</label><input id="url-2" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-4">tile4</label><input id="url-4" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-8">tile8</label><input id="url-8" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-16">tile16</label><input id="url-16" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-32">tile32</label><input id="url-32" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-64">tile64</label><input id="url-64" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-128">tile128</label><input id="url-128" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-256">tile256</label><input id="url-256" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-512">tile512</label><input id="url-512" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-1024">tile1024</label><input id="url-1024" type="text" placeholder="https://..."></div>
++      <div class="share-row"><label for="url-2048">tile2048</label><input id="url-2048" type="text" placeholder="https://..."></div>
++    </form>
++    <div class="share-output">
++      <input id="share-output" type="text" readonly>
++      <button id="share-copy" type="button">Copy</button>
++    </div>
++    <div class="share-actions">
++      <a id="share-anchor" href="#" target="_blank" rel="noopener">Open this custom game</a>
++    </div>
++  </div>
++
++  <script src="js/share_link.js"></script>
+ </body>
+ </html>
+*** End Patch
