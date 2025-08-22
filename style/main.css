@@ -1118,7 +1118,7 @@ html[data-theme="dark"] .share-section { border-color: rgba(255,255,255,.15); }
    minus the 8px gutters (left+right OR top+bottom = 16px total). */
 :root {
   /* Use 100vmin so it never exceeds either dimension; subtract both gutters */
-  --board-size: calc(100vmin - (var(--gutter) * 2));
+  --board-size: var(--board-size-dyn, calc(100svmin - (var(--gutter) * 2)));
   /* One tile side length */
   --tile-size: calc(
     (var(--board-size) - (var(--board-pad) * 2) - (var(--gap) * 3)) / 4
