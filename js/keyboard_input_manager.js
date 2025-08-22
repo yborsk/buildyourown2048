@@ -51,6 +51,19 @@ KeyboardInputManager.prototype.listen = function () {
 
   // Respond to direction keys
   document.addEventListener("keydown", function (event) {
+
+      // NEW: let form fields receive keystrokes
+  var t = event.target;
+  if (
+    t &&
+    (t.tagName === "INPUT" ||
+     t.tagName === "TEXTAREA" ||
+     t.tagName === "SELECT" ||
+     t.isContentEditable)
+  ) {
+    return; // don't let the game handle this key
+  }
+
     var modifiers = event.altKey || event.ctrlKey || event.metaKey ||
                     event.shiftKey;
     var mapped    = map[event.which];
