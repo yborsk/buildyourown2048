@@ -255,6 +255,31 @@
   </div>
 
   <script src="js/share_link.js"></script>
+
+<script>
+  (function () {
+    function setDisplayName(name) {
+      var box = document.getElementById('custom-name');
+      if (!box) return;
+      name = (name || '').trim();
+      box.textContent = name;
+      box.style.display = name ? 'block' : 'none';
+    }
+
+    // On load: read from ?name=
+    var params = new URLSearchParams(location.search);
+    setDisplayName(params.get('name'));
+
+    // If you’re using the link generator UI, update live as the user types
+    var nameInput = document.getElementById('share-name');
+    if (nameInput) {
+      nameInput.addEventListener('input', function () {
+        setDisplayName(nameInput.value);
+      });
+    }
+  })();
+</script>
+
     
 </body>
 
