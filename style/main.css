@@ -1036,3 +1036,71 @@ hr {
     margin-top: 90px !important; }
   .game-message .lower {
     margin-top: 30px !important; } }
+
+/* === Dark mode slider control === */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px; height: 24px;
+}
+.switch input { display:none; }
+.switch .slider {
+  position:absolute; inset:0;
+  border-radius: 24px;
+  background: #bbb; cursor:pointer;
+  transition: transform .2s, background .2s;
+}
+.switch .slider:before {
+  content:"";
+  position:absolute; left:3px; top:3px;
+  width:18px; height:18px; border-radius:50%;
+  background:#fff; transition: transform .2s;
+}
+.switch input:checked + .slider { background:#6a9cff; }
+.switch input:checked + .slider:before { transform: translateX(22px); }
+
+/* === Light/Dark theme variables === */
+:root {
+  --bg: #faf8ef;          /* page background */
+  --text: #776e65;        /* base text */
+  --board: #bbada0;       /* board background */
+  --grid-cell: rgba(238,228,218,.35);
+  --overlay: rgba(238,228,218,.5);
+  --score-bg: #bbada0;
+  --button-bg: #8f7a66;
+  --link: #776e65;
+}
+
+html[data-theme="dark"] {
+  --bg: #121212;
+  --text: #e7e3da;
+  --board: #3a3a3a;
+  --grid-cell: rgba(255,255,255,.06);
+  --overlay: rgba(0,0,0,.5);
+  --score-bg: #4a4037;
+  --button-bg: #5c4f43;
+  --link: #e7e3da;
+}
+
+/* === Soft overrides to map existing styles to variables === */
+html, body { background: var(--bg) !important; color: var(--text) !important; }
+a { color: var(--link) !important; }
+
+.game-container { background: var(--board) !important; }       /* board */  /* was #bbada0 */ /* :contentReference[oaicite:4]{index=4} */
+.grid-cell { background: var(--grid-cell) !important; }         /* cells */  /* was rgba(238,228,218,.35) */ /* :contentReference[oaicite:5]{index=5} */
+.game-container .game-message { background: var(--overlay) !important; }     /* overlay */ /* was rgba(238,228,218,.5) */ /* :contentReference[oaicite:6]{index=6} */
+
+.score-container, .best-container {
+  background: var(--score-bg) !important;
+  color: var(--text) !important;
+} /* originally #bbada0 + white */ /* :contentReference[oaicite:7]{index=7} */
+
+.restart-button, .restart-button2, .save-button, .game-button,
+.continue-button, .start-new-button, .paused-button, .restart-button3 {
+  background: var(--button-bg) !important;
+  color: #f9f6f2 !important;
+} /* originally #8f7a66 */ /* :contentReference[oaicite:8]{index=8} */
+
+/* Share box & misc borders look nicer in dark */
+.share-section { border-color: rgba(0,0,0,.15); }
+html[data-theme="dark"] .share-section { border-color: rgba(255,255,255,.15); }
