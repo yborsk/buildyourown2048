@@ -1104,3 +1104,97 @@ a { color: var(--link) !important; }
 /* Share box & misc borders look nicer in dark */
 .share-section { border-color: rgba(0,0,0,.15); }
 html[data-theme="dark"] .share-section { border-color: rgba(255,255,255,.15); }
+
+/* ==== Responsive board that fills screen with 8px gutters ==== */
+
+/* Tunables */
+:root {
+  --gutter: 8px;           /* outer page gutter on all sides */
+  --board-pad: 15px;       /* the inner padding your board already uses */
+  --gap: 15px;             /* the space between grid cells */
+}
+
+/* The board should be a square that fits within the smaller viewport side,
+   minus the 8px gutters (left+right OR top+bottom = 16px total). */
+:root {
+  /* Use 100vmin so it never exceeds either dimension; subtract both gutters */
+  --board-size: calc(100vmin - (var(--gutter) * 2));
+  /* One tile side length */
+  --tile-size: calc(
+    (var(--board-size) - (var(--board-pad) * 2) - (var(--gap) * 3)) / 4
+  );
+  /* Step between tile origins (tile size + gap) */
+  --step: calc(var(--tile-size) + var(--gap));
+}
+
+/* Page/container sizing */
+html, body {
+  /* guarantees 8px gutters even if some other block goes full-width */
+  padding: var(--gutter);
+  box-sizing: border-box;
+}
+
+.container {
+  /* match the width to the board so header/scores align visually */
+  width: var(--board-size) !important;
+  max-width: calc(100vw - var(--gutter) * 2);
+  margin: 0 auto;
+}
+
+/* Board frame */
+.game-container {
+  width: var(--board-size) !important;
+  height: var(--board-size) !important;
+  padding: var(--board-pad) !important;
+}
+
+/* The static background grid (the 16 “holes”) */
+.grid-container,
+.tile-container {
+  width: calc(var(--board-size) - var(--board-pad) * 2) !important;
+  height: calc(var(--board-size) - var(--board-pad) * 2) !important;
+}
+
+/* Background grid cells */
+.grid-cell {
+  width: var(--tile-size) !important;
+  height: var(--tile-size) !important;
+  margin-right: var(--gap) !important;
+}
+.grid-cell:last-child { margin-right: 0 !important; }
+.grid-row { margin-bottom: var(--gap) !important; }
+.grid-row:last-child { margin-bottom: 0 !important; }
+
+/* Foreground tiles (your image tiles) */
+.tile .tile-inner,
+.tile .tile-inner2, .tile .tile-inner4, .tile .tile-inner8,
+.tile .tile-inner16, .tile .tile-inner32, .tile .tile-inner64,
+.tile .tile-inner128, .tile .tile-inner256, .tile .tile-inner512,
+.tile .tile-inner1024, .tile .tile-inner2048 {
+  width: var(--tile-size) !important;
+  height: var(--tile-size) !important;
+  line-height: var(--tile-size) !important; /* if any text tiles appear */
+}
+
+/* ==== Override the fixed pixel transforms with variable-based ones ==== */
+/* Each class moves the tile by N * --step in X and/or Y.                 */
+/* (These rules intentionally appear AFTER the original ones.)             */
+.tile.tile-position-1-1 { transform: translate(0, 0) !important; }
+.tile.tile-position-1-2 { transform: translate(0, calc(var(--step) * 1)) !important; }
+.tile.tile-position-1-3 { transform: translate(0, calc(var(--step) * 2)) !important; }
+.tile.tile-position-1-4 { transform: translate(0, calc(var(--step) * 3)) !important; }
+
+.tile.tile-position-2-1 { transform: translate(calc(var(--step) * 1), 0) !important; }
+.tile.tile-position-2-2 { transform: translate(calc(var(--step) * 1), calc(var(--step) * 1)) !important; }
+.tile.tile-position-2-3 { transform: translate(calc(var(--step) * 1), calc(var(--step) * 2)) !important; }
+.tile.tile-position-2-4 { transform: translate(calc(var(--step) * 1), calc(var(--step) * 3)) !important; }
+
+.tile.tile-position-3-1 { transform: translate(calc(var(--step) * 2), 0) !important; }
+.tile.tile-position-3-2 { transform: translate(calc(var(--step) * 2), calc(var(--step) * 1)) !important; }
+.tile.tile-position-3-3 { transform: translate(calc(var(--step) * 2), calc(var(--step) * 2)) !important; }
+.tile.tile-position-3-4 { transform: translate(calc(var(--step) * 2), calc(var(--step) * 3)) !important; }
+
+.tile.tile-position-4-1 { transform: translate(calc(var(--step) * 3), 0) !important; }
+.tile.tile-position-4-2 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 1)) !important; }
+.tile.tile-position-4-3 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 2)) !important; }
+.tile.tile-position-4-4 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 3)) !important; }
