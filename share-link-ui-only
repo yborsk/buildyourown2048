@@ -1,44 +1,4 @@
 *** Begin Patch
-*** Add File: js/url_theme.js
-+// js/url_theme.js
-+(function () {
-+  // Update/extend this list if you support more values
-+  const supportedValues = [2,4,8,16,32,64,128,256,512,1024,2048,4096,8192];
-+
-+  function readOverridesFromQuery() {
-+    const params = new URLSearchParams(window.location.search);
-+    const overrides = Object.create(null);
-+
-+    for (const v of supportedValues) {
-+      const key = "tile" + v; // e.g., tile2, tile4
-+      if (params.has(key)) {
-+        // If repeated, prefer the last
-+        const url = params.getAll(key).slice(-1)[0];
-+        try {
-+          const u = new URL(url, window.location.href);
-+          if (u.protocol === "http:" || u.protocol === "https:" || u.protocol === "data:") {
-+            overrides[v] = u.href;
-+          }
-+        } catch (_) {
-+          // Ignore invalid URLs
-+        }
-+      }
-+    }
-+    return overrides;
-+  }
-+
-+  function applyFromLocation() {
-+    const o = readOverridesFromQuery();
-+    if (Object.keys(o).length) {
-+      window.customTileImages = o;
-+    }
-+  }
-+
-+  window.UrlTheme = { applyFromLocation };
-+})();
-+
-*** End Patch
-*** Begin Patch
 *** Add File: js/share_link.js
 +// js/share_link.js
 +(function () {
@@ -72,8 +32,9 @@
 +  }
 +
 +  function applyOverridesToGame(overrides) {
++    // Non-destructive merge with whatever you already have
 +    window.customTileImages = Object.assign({}, window.customTileImages || {}, overrides);
-+    // Nudge a re-render for some layouts
++    // Nudge some layouts to repaint
 +    window.dispatchEvent(new Event("resize"));
 +  }
 +
@@ -140,23 +101,13 @@
 +})();
 +
 *** End Patch
+
 *** Begin Patch
 *** Update File: index.html
 @@
-   <script src="js/tile.js"></script>
-   <script src="js/grid.js"></script>
-   <script src="js/html_actuator.js"></script>
-   <script src="js/keyboard_input_manager.js"></script>
-   <script src="js/local_storage_manager.js"></script>
-+  <!-- Read ?tile2=...&tile4=... overrides before the game starts -->
-+  <script src="js/url_theme.js"></script>
-+  <script>
-+    window.UrlTheme && window.UrlTheme.applyFromLocation();
-+  </script>
    <script src="js/game_manager.js"></script>
--  <script src="js/application.js"></script>
-+  <script src="js/application.js"></script> <!-- make sure this is included only once -->
-+
+   <script src="js/application.js"></script>
+ 
 +  <!-- ===== Share / Link Generator (bottom of page) ===== -->
 +  <style>
 +    .share-section{max-width:720px;margin:24px auto 40px;padding:16px;border:1px solid #ddd;border-radius:8px;font-family:inherit}
@@ -206,38 +157,4 @@
 +  <script src="js/share_link.js"></script>
  </body>
  </html>
-*** End Patch
-*** Begin Patch
-*** Update File: js/html_actuator.js
-@@
-   var classes = ["tile", "tile-" + tile.value, positionClass];
- 
-   if (tile.value > 2048) classes.push("tile-super");
- 
-   this.applyClasses(wrapper, classes);
- 
--  inner.classList.add("tile-inner");
--  inner.textContent = tile.value;
-+  inner.classList.add("tile-inner");
-+
-+  // Prefer custom images if provided via URL params (set by js/url_theme.js)
-+  var imgUrl = (window.customTileImages && window.customTileImages[tile.value]) || null;
-+
-+  if (imgUrl) {
-+    var img = document.createElement("img");
-+    img.src = imgUrl;
-+    img.alt = tile.value;
-+    img.style.width = "100%";
-+    img.style.height = "100%";
-+    img.style.objectFit = "cover";
-+    inner.appendChild(img);
-+  } else {
-+    // Fallback: display the number as before
-+    inner.textContent = tile.value;
-+  }
- 
-   if (tile.previousPosition) {
-     // Make sure that the tile gets rendered in the previous position first
-     window.requestAnimationFrame(function () {
-       classes[2] = self.positionClass({ x: tile.x, y: tile.y });
 *** End Patch
