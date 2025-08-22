@@ -277,6 +277,36 @@
   })();
 </script>
 
+    <script>
+  // When the "New Game" button is clicked, simulate pressing the "R" key
+  document.addEventListener('click', function (e) {
+    if (!e.target) return;
+    // Change selectors if your button has a different class or ID
+    if (
+      e.target.matches('.retry-button') ||
+      e.target.matches('.restart-button')
+    ) {
+      e.preventDefault();
+
+      // Fire R key logic directly if available
+      var gm = window.gameManager;
+      if (gm && typeof gm.restart === 'function') {
+        gm.restart(e);
+        return;
+      }
+
+      // Otherwise, dispatch a keydown for 'R'
+      var event = new KeyboardEvent('keydown', {
+        key: 'r',
+        keyCode: 82,
+        code: 'KeyR',
+        which: 82,
+        bubbles: true,
+      });
+      document.dispatchEvent(event);
+    }
+  });
+</script>
     
 </body>
 
