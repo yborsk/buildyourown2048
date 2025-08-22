@@ -63,6 +63,13 @@ HTMLActuator.prototype.addTile = function (tile) {
 
     inner.classList.add("tile-inner");
 
+  // Add a small bottom-right numeric badge
+var badge = document.createElement('span');
+badge.className = 'tile-badge';
+badge.textContent = tile.value;
+inner.appendChild(badge);
+
+
   // Prefer custom images if provided via URL params
   var imgUrl = (window.customTileImages && window.customTileImages[tile.value]) || null;
 
