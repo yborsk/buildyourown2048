@@ -256,6 +256,19 @@
     <div class="share-actions">
       <a id="share-anchor" href="#" target="_blank" rel="noopener">Open this custom game</a>
     </div>
+
+<!-- Bulk Paste Section -->
+    <div class="share-bulk">
+      <label for="bulk-links" style="font-weight:600;">Paste all 11 tile image links (2 → 2048)</label>
+      <textarea id="bulk-links" rows="5" style="width:100%;margin-top:6px;resize:vertical;overflow:auto;"
+        placeholder="Paste each link on a new line&#10;First line = tile2, second = tile4, ... up to tile2048"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;">
+        <button id="bulk-apply" type="button">Paste & Autofill</button>
+        <button id="bulk-clear" type="button">Clear</button>
+      </div>
+      <div id="bulk-feedback" style="margin-top:6px;font-size:.9rem;color:#0a662f;"></div>
+    </div>
+      
       <p class="game-explanation">
                 <strong class="important">How to play:</strong> Use your <strong>arrow keys</strong> to move the tiles. When two tiles with the same picture touch, they <strong>merge into one!</strong>
             </p>
@@ -455,7 +468,56 @@
 })();
 </script>
 
+<script>
+(function () {
+  const TILE_IDS = [2,4,8,16,32,64,128,256,512,1024,2048];
 
+  function applyBulk() {
+    const txt = document.getElementById('bulk-links').value.trim();
+    const fb = document.getElementById('bulk-feedback');
+    fb.textContent = '';
+    fb.style.color = '#0a662f';
+
+    if (!txt) {
+      fb.textContent = 'Please paste some links.';
+      fb.style.color = '#b00020';
+      return;
+    }
+
+    // Split by newlines, trim, filter empties
+    const links = txt.split(/\n+/).map(s => s.trim()).filter(Boolean);
+
+    if (links.length < TILE_IDS.length) {
+      fb.textContent = `You pasted ${links.length} / ${TILE_IDS.length} links. Need 11 total.`;
+      fb.style.color = '#b00020';
+      return;
+    }
+
+    TILE_IDS.forEach((id, i) => {
+      const input = document.getElementById('url-' + id);
+      if (input) {
+        input.value = links[i] || '';
+        // trigger input event so share_link.js updates the generated URL
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    fb.textContent = 'All links applied successfully ✅';
+  }
+
+  function clearBulk() {
+    document.getElementById('bulk-links').value = '';
+    document.getElementById('bulk-feedback').textContent = '';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const applyBtn = document.getElementById('bulk-apply');
+    const clearBtn = document.getElementById('bulk-clear');
+    if (applyBtn) applyBtn.addEventListener('click', applyBulk);
+    if (clearBtn) clearBtn.addEventListener('click', clearBulk);
+  });
+})();
+</script>
     
 </body>
 
