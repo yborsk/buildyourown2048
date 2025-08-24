@@ -233,8 +233,11 @@
   </style>
 
   <div class="share-section">
+      <p class="game-explanation">
+                <strong class="important">How to play:</strong> Use your <strong>arrow keys</strong> to move the tiles. When two tiles with the same picture touch, they <strong>merge into one!</strong>
+            </p>
     <p class="share-heading">Create your own custom 2048 game</p>
-    <p class="share-sub">Enter a name and any tile image URLs. Use a separate image host platform, such as freeimage.host, and paste the direct links to the image (right click and hit "Open image in new tab"). Note that this website does not SAVE any images, but instead pulls them from the host website. Use your custom URL to access games that you've created.</p>
+    <p class="share-sub">Enter a name and direct image URLs for each tile. Scroll down for detailed instructions!</p>
     <form id="share-form" class="share-grid" onsubmit="return false;">
       <div class="share-row">
         <label for="share-name">Name</label>
@@ -277,10 +280,68 @@
       </div>
       <div id="bulk-feedback" style="margin-top:6px;font-size:.9rem;color:#0a662f;"></div>
     </div>
+      <hr>
+      <section id="custom-2048-instructions">
+  <h2><strong>How to create your own game</strong></h2>
+
+  <ol>
+    <li>
+      Make 11 square images for tiles 2 through 2048.
+      <ul>
+        <li>Images can be static or animated (GIFs).</li>
+        <li>For smooth loading, keep each one under 300 × 300 px or about 8MB.</li>
+      </ul>
+    </li>
+
+    <li>
+      <strong>Create an account</strong> at
+      <a href="https://www.freeimage.host/" target="_blank" rel="noopener">freeimage.host</a>.
+      <ul>
+        <li>This is <strong>required</strong> for your images to save correctly.</li>
+      </ul>
+    </li>
+
+    <li>
+      <strong>Upload your images</strong> to
+      <a href="https://www.freeimage.host/" target="_blank" rel="noopener">freeimage.host</a>.
+      <ul>
+        <li>You can upload all 11 at once (easiest), or one by one.</li>
+        <li>If uploading all at once, select them in the order you want them to appear.</li>
+      </ul>
+    </li>
+
+    <li>
+      Copy the <strong>direct links</strong> for your images.
+      <ul>
+        <li>Do <strong>not</strong> use viewer links. Direct links look like: <code>https://iili.io/xxxxxx.png</code></li>
+        <li>If you uploaded all 11 together, paste the list into the “Paste all 11 tile image links” box.</li>
+        <li>If you uploaded them separately, paste each link into its matching tile box.</li>
+      </ul>
+    </li>
+
+    <li>
+      Enter a <strong>name for your game</strong> at the top.
+      <ul>
+        <li>Choose whether or not to show numbers on the tiles (uncheck if your images already have numbers).</li>
+      </ul>
+    </li>
+
+    <li>
+      Click “<strong>Open this custom game.</strong>”
+      <ul>
+        <li>Your custom 2048 is now ready!</li>
+        <li>Don’t forget to <strong>save your link</strong> so you can play again later.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <p><strong>Notes:</strong></p>
+  <ul>
+    <li>Any image host works, as long as you use direct image links.</li>
+    <li>Game URLs are long, since all tile links are stored inside them.</li>
+  </ul>
+</section>
       
-      <p class="game-explanation">
-                <strong class="important">How to play:</strong> Use your <strong>arrow keys</strong> to move the tiles. When two tiles with the same picture touch, they <strong>merge into one!</strong>
-            </p>
             <hr>
             <p>
                 Edited by <a href="http://github.com/cdivry">Clément DIVRY</a> to make this game use pictures.
