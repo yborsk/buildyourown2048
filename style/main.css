@@ -1227,3 +1227,12 @@ html[data-show-nums="0"] .tile-badge { display: none !important; }
   --byo-bg-layer: linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.22));
   --byo-bg-image: none;
 }
+
+/* If a tile contains an <img>, make it fill the square without distortion */
+.tile .tile-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;      /* <- preserves aspect ratio, crops overflow */
+  object-position: center;
+  display: block;         /* remove any inline-gap from default inline images */
+}
