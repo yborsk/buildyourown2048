@@ -1086,6 +1086,7 @@ html[data-theme="dark"] {
 html, body { background: var(--bg) !important; color: var(--text) !important; }
 a { color: var(--link) !important; }
 
+.game-container { background-color: var(--board) !important; }
 .game-container { background: var(--board) !important; }       /* board */  /* was #bbada0 */ /* :contentReference[oaicite:4]{index=4} */
 .grid-cell { background: var(--grid-cell) !important; }         /* cells */  /* was rgba(238,228,218,.35) */ /* :contentReference[oaicite:5]{index=5} */
 .game-container .game-message { background: var(--overlay) !important; }     /* overlay */ /* was rgba(238,228,218,.5) */ /* :contentReference[oaicite:6]{index=6} */
