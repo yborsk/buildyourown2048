@@ -252,18 +252,18 @@
   }
 
   function getBgFromInner(innerEl) {
-    // Try computed background-image from the inner tile
-    var s = window.getComputedStyle(innerEl);
-    var bg = s && s.backgroundImage || '';
-    if (bg && bg !== 'none') return bg;
-
-    // Fallback to URL map if present
-    var parentVal = getTileValueFrom(innerEl.parentElement || {});
-    if (parentVal && window.customTileImages && window.customTileImages[parentVal]) {
-      return 'url("' + window.customTileImages[parentVal] + '")';
-    }
-    return '';
+  // 1) If the user provided a URL for this tile value, use it first.
+  var parentVal = getTileValueFrom(innerEl.parentElement || {});
+  if (parentVal && window.customTileImages && window.customTileImages[parentVal]) {
+    return 'url("' + window.customTileImages[parentVal] + '")';
   }
+
+  // 2) Otherwise, fall back to whatever CSS gave this tile (the defaults)
+  var s = window.getComputedStyle(innerEl);
+  var bg = (s && s.backgroundImage) || '';
+  return (bg && bg !== 'none') ? bg : '';
+}
+
 
   function findHighestTileBg() {
     var inners = document.querySelectorAll('.tile-container .tile .tile-inner');
