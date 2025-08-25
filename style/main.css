@@ -805,7 +805,6 @@ hr {
   html, body {
     font-size: 15px; }
    .tile {
-     background-size: contain; 
      background-repeat: no-repeat; 
      background-position: center center; 
   }
