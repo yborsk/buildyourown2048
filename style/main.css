@@ -1223,3 +1223,15 @@ html, body {
 
 /* Hide numeric badges when the toggle is off */
 html[data-show-nums="0"] .tile-badge { display: none !important; }
+
+/* Highest-tile background styling */
+.game-container.byobg-on {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* A touch of gray to keep tiles readable */
+  background-image: var(--byo-bg-layer), var(--byo-bg-image);
+  /* default overlay; JS will set the image layer */
+  --byo-bg-layer: linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.22));
+  --byo-bg-image: none;
+}
