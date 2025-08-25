@@ -69,6 +69,14 @@
                     <span class="slider"></span>
                   </label>
                 </div>
+                <!-- Highest-tile background toggle -->
+<div class="bg-toggle" style="float:right; display:flex; align-items:center; gap:8px; margin-top:8px; margin-right:12px;">
+  <span id="bg-label" style="font-size:13px; opacity:.85;">BG: On</span>
+  <label class="switch">
+    <input id="bg-highest-switch" type="checkbox" aria-label="Use highest tile as background" checked>
+    <span class="slider"></span>
+  </label>
+</div>
             </div>
 
             <div class="game-container">
@@ -225,6 +233,109 @@
 
 <!-- keep the existing application startup after this -->
 <script src="js/application.js"></script>
+
+    <script>
+(function () {
+  var STORAGE_KEY = 'byo2048-bg-enabled';
+  var container = document.querySelector('.game-container');
+  var switchEl = document.getElementById('bg-highest-switch');
+  var labelEl  = document.getElementById('bg-label');
+
+  if (!container) return;
+
+  // ----- helpers -----
+  function getTileValueFrom(el) {
+    // 2048 tiles have classes like: "tile tile-128 tile-position-..." etc.
+    var cls = el.className || '';
+    var m = cls.match(/(?:^|\s)tile-(\d+)(?:\s|$)/);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+
+  function getBgFromInner(innerEl) {
+    // Try computed background-image from the inner tile
+    var s = window.getComputedStyle(innerEl);
+    var bg = s && s.backgroundImage || '';
+    if (bg && bg !== 'none') return bg;
+
+    // Fallback to URL map if present
+    var parentVal = getTileValueFrom(innerEl.parentElement || {});
+    if (parentVal && window.customTileImages && window.customTileImages[parentVal]) {
+      return 'url("' + window.customTileImages[parentVal] + '")';
+    }
+    return '';
+  }
+
+  function findHighestTileBg() {
+    var inners = document.querySelectorAll('.tile-container .tile .tile-inner');
+    var best = { val: 0, bg: '' };
+    inners.forEach(function (inner) {
+      var val = getTileValueFrom(inner.parentElement || inner);
+      if (val >= best.val) {
+        var bg = getBgFromInner(inner);
+        if (bg) best = { val: val, bg: bg };
+      }
+    });
+    return best.bg; // css url("...") or ''
+  }
+
+  function applyBackground() {
+    if (!container.classList.contains('byobg-on')) return;
+    var bg = findHighestTileBg();
+    // If nothing found, clear image but keep gray overlay subtle
+    container.style.setProperty('--byo-bg-image', bg || 'none');
+  }
+
+  function setEnabled(on) {
+    if (on) {
+      container.classList.add('byobg-on');
+      if (labelEl) labelEl.textContent = 'BG: On';
+      try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+      applyBackground();
+    } else {
+      container.classList.remove('byobg-on');
+      if (labelEl) labelEl.textContent = 'BG: Off';
+      container.style.removeProperty('--byo-bg-image');
+      try { localStorage.setItem(STORAGE_KEY, '0'); } catch (e) {}
+    }
+  }
+
+  // ----- init (default ON) -----
+  var saved = null;
+  try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+  var enabled = (saved === null) ? true : saved === '1';
+
+  if (switchEl) {
+    switchEl.checked = enabled;
+    switchEl.addEventListener('change', function () { setEnabled(switchEl.checked); });
+  }
+  setEnabled(enabled);
+
+  // Update whenever tiles change (moves, merges, new game)
+  var tileWrap = document.querySelector('.tile-container');
+  if (tileWrap) {
+    var pending = false;
+    var obs = new MutationObserver(function () {
+      if (!enabled) return;
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(function () {
+        pending = false;
+        applyBackground();
+      });
+    });
+    obs.observe(tileWrap, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+  }
+
+  // Also update after initial paint and after restart button
+  window.addEventListener('load', applyBackground);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'r' || e.key === 'R') setTimeout(applyBackground, 0);
+  });
+
+  // If your game exposes window.gameManager.restart, hook the click you already added
+  // (Your existing code dispatches 'R' on restart clicks, which we already listen for.)
+})();
+</script>
     
 
   <!-- ===== Share / Link Generator (bottom of page) ===== -->
