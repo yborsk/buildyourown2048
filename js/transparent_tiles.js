@@ -1,90 +1,81 @@
+
 (function () {
-  // --- helpers ------------------------------------------------------------
-  function qs(sel) { return document.querySelector(sel); }
-  function getParam(name) {
-    var u = new URL(window.location.href);
-    return u.searchParams.get(name);
-  }
-  function setParam(name, value) {
-    var u = new URL(window.location.href);
-    if (value === null || value === undefined || value === '' || value === '0') {
-      u.searchParams.delete(name);
-    } else {
-      u.searchParams.set(name, value);
-    }
-    history.replaceState(null, '', u.toString());
+  var root        = document.documentElement;
+  var body        = document.body;
+  var form        = document.getElementById('share-form');
+  var out         = document.getElementById('share-output');
+  var anchor      = document.getElementById('share-anchor');
+  var ttSwitch    = document.getElementById('share-tt');      // new switch in Create
+  var numsSwitch  = document.getElementById('share-nums');    // existing switch in Create
+  var bgSwitch    = document.getElementById('bg-highest-switch');
+  var bgLabel     = document.getElementById('bg-label');
+  var gameCont    = document.querySelector('.game-container');
+
+  function setParam(urlString, name, on) {
+    try {
+      var u = new URL(urlString, location.origin);
+      if (on) u.searchParams.set(name, '1'); else u.searchParams.delete(name);
+      return u.toString();
+    } catch(e) { return urlString; }
   }
 
-  // Switch elements
-  var ttSwitch      = qs('#tt-switch');
-  var ttLabel       = qs('#tt-label');
-  var bgSwitch      = qs('#bg-highest-switch');   // existing BG switch
-  var bgLabel       = qs('#bg-label');
-  var numbersSwitch = qs('#numbers-switch');
-  var numbersLabel  = qs('#numbers-label');
+  function applyToOutputs(ttOn) {
+    if (out && out.value)   out.value   = setParam(out.value, 'tt', ttOn);
+    if (anchor && anchor.href) anchor.href = setParam(anchor.href, 'tt', ttOn);
+  }
 
-  // Body flags
+  function forceBackgroundOn() {
+    // Force BG ON (transparent mode depends on BG showing the image)
+    try { localStorage.setItem('byo2048-bg-enabled', '1'); } catch(e) {}
+    if (bgSwitch) bgSwitch.checked = true;
+    if (bgLabel)  bgLabel.textContent = 'BG: On';
+    if (gameCont) gameCont.classList.add('byobg-on');
+    // The existing BG script’s MutationObserver will handle updating the image as tiles change
+  }
+
+  function releaseBackground() {
+    // Let the user’s BG setting take over again (don’t force Off; just stop forcing it On)
+    // We do nothing here; the user’s BG switch & localStorage setting control it.
+  }
+
   function applyTransparent(on) {
-    document.body.classList.toggle('tiles-transparent', !!on);
-    // Transparent tiles should not show numbers (per requirement)
-    document.body.classList.toggle('hide-numbers', !!on);
+    body.classList.toggle('tiles-transparent', !!on);
 
-    // Reflect UI
-    if (ttSwitch) ttSwitch.checked = !!on;
-    if (ttLabel)  ttLabel.textContent = 'Transparent tiles' + (on ? ' (on)' : '');
-
-    // --- Override the other options when tt=1 -----------------------------
     if (on) {
-      // Turn off Highest-tile Background and lock the UI look
-      if (bgSwitch) {
-        bgSwitch.checked = false;
-        // If your BG script uses a class to activate, remove it:
-        var gc = document.querySelector('.game-container');
-        if (gc) {
-          gc.classList.remove('byobg-on'); // matches your bg code’s class
-          gc.style.removeProperty('--byo-bg-image');
-        }
+      // Override: hide numbers
+      root.setAttribute('data-show-nums', '0');
+      if (numsSwitch) numsSwitch.checked = false;
+
+      // Override: BG must be ON so the custom image appears as the board background
+      forceBackgroundOn();
+    } else {
+      // Restore numbers according to the Create switch (default is checked)
+      if (numsSwitch && numsSwitch.checked) {
+        root.setAttribute('data-show-nums', '1');
+      } else {
+        root.setAttribute('data-show-nums', '0');
       }
-      if (bgLabel) bgLabel.textContent = 'BG: Off';
-
-      // Turn off numbers (switch off and hide via CSS)
-      if (numbersSwitch) numbersSwitch.checked = false;
+      releaseBackground();
     }
+
+    applyToOutputs(!!on);
   }
 
-  function applyNumbers(on) {
-    // Only effective if Transparent Tiles is NOT forcing the override
-    var ttOn = !!document.body.classList.contains('tiles-transparent');
-    var shouldHide = ttOn ? true : !on;
-    document.body.classList.toggle('hide-numbers', shouldHide);
-    if (numbersSwitch) numbersSwitch.checked = !shouldHide;
-  }
-
-  // --- Initial load from URL ----------------------------------------------
-  var ttParam = getParam('tt');         // "1" enables transparent tiles
-  var ttOn = ttParam === '1';
+  // --- Initialize from URL (?tt=1) ---
+  var params = new URLSearchParams(location.search);
+  var ttOn = params.get('tt') === '1';
+  if (ttSwitch) ttSwitch.checked = ttOn;
   applyTransparent(ttOn);
 
-  // Default: show numbers unless hidden by tt
-  if (!ttOn) applyNumbers(true);
-
-  // --- Wire up events ------------------------------------------------------
+  // --- Keep the Share URL and link in sync ---
   if (ttSwitch) {
-    ttSwitch.addEventListener('change', function (e) {
-      var on = !!e.target.checked;
-      setParam('tt', on ? '1' : '0');
-      applyTransparent(on);
+    ttSwitch.addEventListener('change', function () {
+      applyTransparent(ttSwitch.checked);
     });
   }
-
-  if (numbersSwitch) {
-    numbersSwitch.addEventListener('change', function (e) {
-      // If tt is on, it overrides — force switch to Off and keep numbers hidden.
-      if (document.body.classList.contains('tiles-transparent')) {
-        numbersSwitch.checked = false;
-        return; // override in effect
-      }
-      applyNumbers(!!e.target.checked);
-    });
+  if (form) {
+    // When the share URL is regenerated by the form, append/strip ?tt=1
+    form.addEventListener('input',  function () { setTimeout(function(){ applyToOutputs(ttSwitch && ttSwitch.checked); }, 0); });
+    form.addEventListener('change', function () { setTimeout(function(){ applyToOutputs(ttSwitch && ttSwitch.checked); }, 0); });
   }
 })();
