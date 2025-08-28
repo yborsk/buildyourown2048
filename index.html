@@ -381,14 +381,8 @@
         <!-- Show numbers toggle -->
         <div class="share-row">
           <label for="share-nums">Show tile numbers</label>
-          <input id="share-nums" type="range" min="0" max="1" value="1" step="1" role="switch" aria-label="Show tile numbers">
-        
-        <!-- Transparent tiles toggle -->
-        <div class="share-row">
-          <label for="share-tt">Transparent tiles (only display the custom images in the game background, better for detailed or text heavy images)</label>
-          <input id="share-tt" type="range" min="0" max="1" value="0" step="1" role="switch" aria-label="Transparent tiles">
+          <input id="share-nums" type="checkbox" checked>
         </div>
-    </div>
     </form>
     <div class="share-output">
       <input id="share-output" type="text" readonly>
@@ -722,132 +716,6 @@
 })();
 </script>
     
-
-<style>
-  /* Transparent tiles preview overrides */
-  html[data-tt="1"] .tile-inner2    { background-image: url('img/2-clear.png') !important; }
-  html[data-tt="1"] .tile-inner4    { background-image: url('img/4-clear.png') !important; }
-  html[data-tt="1"] .tile-inner8    { background-image: url('img/8-clear.png') !important; }
-  html[data-tt="1"] .tile-inner16   { background-image: url('img/16-clear.png') !important; }
-  html[data-tt="1"] .tile-inner32   { background-image: url('img/32-clear.png') !important; }
-  html[data-tt="1"] .tile-inner64   { background-image: url('img/64-clear.png') !important; }
-  html[data-tt="1"] .tile-inner128  { background-image: url('img/128-clear.png') !important; }
-  html[data-tt="1"] .tile-inner256  { background-image: url('img/256-clear.png') !important; }
-  html[data-tt="1"] .tile-inner512  { background-image: url('img/512-clear.png') !important; }
-  html[data-tt="1"] .tile-inner1024 { background-image: url('img/1024-clear.png') !important; }
-  html[data-tt="1"] .tile-inner2048 { background-image: url('img/2048-clear.png') !important; }
-
-  /* Make in-game tiles fully transparent if needed */
-  html[data-tt="1"] .tile .tile-inner {
-    background-color: transparent !important;
-  }
-
-  /* Optional: dim or disable the Show Numbers slider when TT is on */
-  #share-nums[disabled] { opacity: 0.5; }
-</style>
-
-
-<script>
-(function() {
-  var root = document.documentElement;
-  var out   = document.getElementById('share-output');
-  var link  = document.getElementById('share-anchor');
-  var form  = document.getElementById('share-form');
-  var nums  = document.getElementById('share-nums');
-  var tt    = document.getElementById('share-tt');
-  var bgSwitch = document.getElementById('bg-highest-switch');
-  var bgLabel  = document.getElementById('bg-label');
-  var container = document.querySelector('.game-container');
-
-  function getCurrentUrlString() {
-    // Prefer the current output value; else use the anchor href
-    var u = (out && out.value) ? out.value : (link ? link.href : location.href);
-    return u || location.href;
-  }
-
-  function setParam(urlString, key, val) {
-    try {
-      var u = new URL(urlString, location.origin);
-      if (val === null || val === undefined || val === '') {
-        u.searchParams.delete(key);
-      } else {
-        u.searchParams.set(key, String(val));
-      }
-      return u.toString();
-    } catch (e) { return urlString; }
-  }
-
-  function normalizeUrlForOutput(u) {
-    // Always ensure nums + tt reflect sliders (tt overrides nums)
-    var ttOn = (tt && Number(tt.value) === 1);
-    var numsOn = (nums && Number(nums.value) === 1);
-
-    u = setParam(u, 'tt', ttOn ? '1' : '');
-    u = setParam(u, 'nums', ttOn ? '0' : (numsOn ? '1' : '0'));
-
-    return u;
-  }
-
-  function pushToOutputs() {
-    var url = normalizeUrlForOutput( getCurrentUrlString() );
-    if (out)  out.value = url;
-    if (link) link.href = url;
-  }
-
-  function applyRuntimeOverrides() {
-    var ttOn = (tt && Number(tt.value) === 1);
-
-    // Attribute so CSS can swap to -clear.png preview set
-    root.setAttribute('data-tt', ttOn ? '1' : '0');
-
-    // TT overrides numbers visibility in the live page too
-    root.setAttribute('data-show-nums', ttOn ? '0' : (nums && Number(nums.value) === 1 ? '1' : '0'));
-
-    // TT forces BG to ON regardless of UI
-    if (ttOn && container) {
-      container.classList.add('byobg-on');
-      try { localStorage.setItem('byo2048-bg-enabled', '1'); } catch(e){}
-      if (bgLabel) bgLabel.textContent = 'BG: On';
-      // rely on existing mutation observer to update image
-    }
-    // Re-enable numbers control if TT is off; disable when on
-    if (nums) {
-      nums.disabled = ttOn;
-    }
-  }
-
-  function onAnyChange() {
-    applyRuntimeOverrides();
-    pushToOutputs();
-  }
-
-  // Wire up
-  if (form) {
-    form.addEventListener('input', onAnyChange);
-    form.addEventListener('change', onAnyChange);
-  }
-  if (tt)   { tt.addEventListener('input', onAnyChange); tt.addEventListener('change', onAnyChange); }
-  if (nums) { nums.addEventListener('input', onAnyChange); nums.addEventListener('change', onAnyChange); }
-
-  // On load: read tt from URL (if present) and initialize sliders/UI
-  try {
-    var params = new URLSearchParams(location.search);
-    var ttParam = params.get('tt');
-    if (tt && ttParam !== null) {
-      tt.value = (ttParam === '1') ? '1' : '0';
-    }
-    var numsParam = params.get('nums');
-    if (nums && numsParam !== null) {
-      nums.value = (numsParam === '1') ? '1' : '0';
-    }
-  } catch(e){}
-
-  // First pass
-  applyRuntimeOverrides();
-  pushToOutputs();
-})();
-</script>
-
 </body>
 
 </html>
