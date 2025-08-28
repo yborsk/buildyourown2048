@@ -380,22 +380,25 @@
       <div class="share-row"><label for="url-512">tile512</label><input id="url-512" type="text" placeholder="https://..."></div>
       <div class="share-row"><label for="url-1024">tile1024</label><input id="url-1024" type="text" placeholder="https://..."></div>
       <div class="share-row"><label for="url-2048">tile2048</label><input id="url-2048" type="text" placeholder="https://..."></div>
-        <!-- Show numbers toggle -->
-        <div class="option-row">
-          <span class="option-label">Transparent tiles</span>
-              <label class="switch">
-                <input id="tt-switch" type="checkbox" aria-label="Transparent tiles (only display the custom images in the game background, better for detailed or text heavy images)">
-                <span class="slider"></span>
-              </label>
-        </div>
-
-<div class="option-row">
-  <span class="option-label">Show tile numbers</span>
+       <!-- Show numbers (now a switch) -->
+<div class="share-row">
+  <label for="share-nums">Show tile numbers</label>
   <label class="switch">
-    <input id="numbers-switch" type="checkbox" aria-label="Show tile numbers" checked>
+    <input id="share-nums" type="checkbox" checked>
     <span class="slider"></span>
   </label>
 </div>
+
+<!-- Transparent tiles (new switch) -->
+<div class="share-row">
+  <label for="share-tt">
+  </label>
+  <label class="switch">
+    <input id="share-tt" type="checkbox" aria-label="Transparent tiles">
+    <span class="slider"></span>
+  </label>
+</div>
+
     </form>
     <div class="share-output">
       <input id="share-output" type="text" readonly>
