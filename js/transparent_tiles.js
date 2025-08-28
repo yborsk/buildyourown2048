@@ -19,6 +19,19 @@
     } catch(e) { return urlString; }
   }
 
+  function setLocationParam(name, on) {
+    try {
+      var u = new URL(window.location.href);
+      if (on) {
+        u.searchParams.set(name, '1');
+      } else {
+        u.searchParams.delete(name);
+      }
+      history.replaceState(null, '', u.toString());
+    } catch (e) { /* no-op */ }
+  }
+
+
   function applyToOutputs(ttOn) {
     if (out && out.value)   out.value   = setParam(out.value, 'tt', ttOn);
     if (anchor && anchor.href) anchor.href = setParam(anchor.href, 'tt', ttOn);
@@ -59,6 +72,7 @@
     }
 
     applyToOutputs(!!on);
+    setLocationParam('tt', !!on);   // <— write/remove ?tt=1
   }
 
   // --- Initialize from URL (?tt=1) ---
