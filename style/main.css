@@ -1259,3 +1259,22 @@ body.tiles-transparent .tile .tile-inner {
   color: transparent !important;
   text-shadow: none !important;
 }
+
+/* === Transparent Tiles mode (tt=1) overrides === */
+
+/* Remove background color and shadow from all tiles */
+body.tiles-transparent .tile .tile-inner {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Hide any custom <img> art injected into tile-inner */
+body.tiles-transparent .tile .tile-inner img {
+  display: none !important;
+}
+
+/* Optionally hide text numbers too (if you want full clear) */
+body.tiles-transparent .tile .tile-inner {
+  color: transparent !important;
+  text-shadow: none !important;
+}
