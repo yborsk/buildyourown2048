@@ -1237,19 +1237,25 @@ html[data-show-nums="0"] .tile-badge { display: none !important; }
   display: block;         /* remove any inline-gap from default inline images */
 }
 
-/* === Transparent tile set =============================================== */
-/* When the body has .tiles-transparent, use the -clear.png art for each tile */
-body.tiles-transparent .tile.tile-2   .tile-inner { background-image: url(../img/2-clear.png) !important; }
-body.tiles-transparent .tile.tile-4   .tile-inner { background-image: url(../img/4-clear.png) !important; }
-body.tiles-transparent .tile.tile-8   .tile-inner { background-image: url(../img/8-clear.png) !important; }
-body.tiles-transparent .tile.tile-16  .tile-inner { background-image: url(../img/16-clear.png) !important; }
-body.tiles-transparent .tile.tile-32  .tile-inner { background-image: url(../img/32-clear.png) !important; }
-body.tiles-transparent .tile.tile-64  .tile-inner { background-image: url(../img/64-clear.png) !important; }
-body.tiles-transparent .tile.tile-128 .tile-inner { background-image: url(../img/128-clear.png) !important; }
-body.tiles-transparent .tile.tile-256 .tile-inner { background-image: url(../img/256-clear.png) !important; }
-body.tiles-transparent .tile.tile-512 .tile-inner { background-image: url(../img/512-clear.png) !important; }
-body.tiles-transparent .tile.tile-1024 .tile-inner { background-image: url(../img/1024-clear.png) !important; }
-body.tiles-transparent .tile.tile-2048 .tile-inner { background-image: url(../img/2048-clear.png) !important; }
+/* ===== Transparent Tiles mode (tt=1) =================================== */
+/* Switch the tile art to the *-clear.png set and hide per-tile images/numbers */
+body.tiles-transparent .tile.tile-2    .tile-inner { background-image: url('../img/2-clear.png') !important; }
+body.tiles-transparent .tile.tile-4    .tile-inner { background-image: url('../img/4-clear.png') !important; }
+body.tiles-transparent .tile.tile-8    .tile-inner { background-image: url('../img/8-clear.png') !important; }
+body.tiles-transparent .tile.tile-16   .tile-inner { background-image: url('../img/16-clear.png') !important; }
+body.tiles-transparent .tile.tile-32   .tile-inner { background-image: url('../img/32-clear.png') !important; }
+body.tiles-transparent .tile.tile-64   .tile-inner { background-image: url('../img/64-clear.png') !important; }
+body.tiles-transparent .tile.tile-128  .tile-inner { background-image: url('../img/128-clear.png') !important; }
+body.tiles-transparent .tile.tile-256  .tile-inner { background-image: url('../img/256-clear.png') !important; }
+body.tiles-transparent .tile.tile-512  .tile-inner { background-image: url('../img/512-clear.png') !important; }
+body.tiles-transparent .tile.tile-1024 .tile-inner { background-image: url('../img/1024-clear.png') !important; }
+body.tiles-transparent .tile.tile-2048 .tile-inner { background-image: url('../img/2048-clear.png') !important; }
 
-/* Number badge visibility control (HTMLActuator injects .tile-badge spans) */
-body.hide-numbers .tile-badge { display: none !important; }
+/* Hide any per-tile <img> that HTMLActuator injects when custom images are used */
+body.tiles-transparent .tile .tile-inner img { display: none !important; }
+
+/* Make sure fallback numbers don’t show through */
+body.tiles-transparent .tile .tile-inner {
+  color: transparent !important;
+  text-shadow: none !important;
+}
