@@ -44,6 +44,21 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <style>
+  /* While loading, prevent all scrolling */
+  html.loading-lock,
+  html.loading-lock body {
+    height: 100%;
+    overflow: hidden !important;
+    overscroll-behavior: contain;
+    /* Optional: keep content from “jumping” as bars appear/disappear on mobile */
+    position: relative;
+  }
+
+  /* Optional: show a tiny unobtrusive loading cursor */
+  html.loading-lock, html.loading-lock * { cursor: progress !important; }
+</style>
 </head>
 
 <body>
@@ -748,6 +763,61 @@
 
   // Run a couple frames after paint to ensure board layout is done
   requestAnimationFrame(() => requestAnimationFrame(lockContainerToBoard));
+})();
+</script>
+
+<script>
+(function () {
+  // 1) Never restore previous scroll on reload
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
+  // 2) Lock scroll immediately
+  document.documentElement.classList.add('loading-lock');
+
+  // 3) Always start at the very top (handles reloads + bfcache)
+  window.scrollTo(0, 0);
+
+  // 4) Hard-block user scroll inputs while locked (wheel, touch, keys)
+  const BLOCK_KEYS = new Set(['Space','PageUp','PageDown','End','Home','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']);
+  function blockScroll(e) {
+    // Allow inside focused inputs (so users can type without the page moving)
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    const isTyping = tag === 'input' || tag === 'textarea' || e.target?.isContentEditable;
+    if (isTyping && e.type === 'keydown') return;
+
+    if (e.type === 'keydown' && !BLOCK_KEYS.has(e.code)) return;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  window.addEventListener('wheel', blockScroll, { passive: false, capture: true });
+  window.addEventListener('touchmove', blockScroll, { passive: false, capture: true });
+  window.addEventListener('keydown', blockScroll, { passive: false, capture: true });
+
+  // 5) When EVERYTHING is loaded, unlock scrolling and remove blockers
+  function unlock() {
+    document.documentElement.classList.remove('loading-lock');
+    window.removeEventListener('wheel', blockScroll, true);
+    window.removeEventListener('touchmove', blockScroll, true);
+    window.removeEventListener('keydown', blockScroll, true);
+  }
+
+  // Use window 'load' to ensure all subresources (images, CSS, etc.) are done
+  if (document.readyState === 'complete') {
+    // already fully loaded
+    unlock();
+  } else {
+    window.addEventListener('load', unlock, { once: true });
+  }
+
+  // 6) Safety net: if 'load' never fires (bad asset), unlock after N seconds
+  // (Adjust or remove if you want a strict lock.)
+  setTimeout(function () {
+    if (document.documentElement.classList.contains('loading-lock')) {
+      unlock();
+    }
+  }, 12000); // 12s fallback
 })();
 </script>
 
