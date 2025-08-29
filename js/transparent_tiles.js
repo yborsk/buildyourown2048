@@ -39,6 +39,16 @@
     var numsSwitch = document.getElementById('share-nums');
     if (numsSwitch) numsSwitch.checked = false;
   }
+
+    // Background forced ON when tt=1
+  var bgSwitch = document.getElementById('bg-highest-switch');
+  var bgLabel  = document.getElementById('bg-label');
+  var gameCont = document.querySelector('.game-container');
+  if (on) {
+    if (bgSwitch) bgSwitch.checked = true;
+    if (bgLabel)  bgLabel.textContent = "BG: On";
+    if (gameCont) gameCont.classList.add("byobg-on");
+  }
     
     applyToOutputs(!!on);
     setLocationParam('tt', !!on);
@@ -105,3 +115,16 @@
     form.addEventListener('change', function(){ setTimeout(sync, 0); });
   }
 })();
+
+// Disable BG switch whenever tt=1
+(function () {
+  var bgSwitch = document.getElementById('bg-highest-switch');
+  if (!bgSwitch) return;
+  bgSwitch.addEventListener('change', function () {
+    if (document.body.classList.contains('tiles-transparent')) {
+      // Re-force it ON
+      bgSwitch.checked = true;
+    }
+  });
+})();
+
