@@ -1266,3 +1266,23 @@ body.tiles-transparent .tile .tile-inner {
 body.tiles-transparent .tile .tile-inner img {
   display: none !important;
 }
+
+/* --- Width-only, square board; no viewport height involved --- */
+.game-container {
+  /* Fill parent width, but don't exceed 560px (tweak to taste) */
+  width: min(100%, 560px) !important;
+
+  /* Make height follow width to keep the board square */
+  aspect-ratio: 1 / 1;
+  height: auto !important;
+
+  /* Optional: avoid tiny reflow hiccups from layout/paint */
+  contain: layout paint;
+}
+
+/* Ensure inner layers fill the container box the engine expects */
+.grid-container,
+.tile-container {
+  /* Let them stretch with the game-container box */
+  width: 100% !important;
+  height: 100%
