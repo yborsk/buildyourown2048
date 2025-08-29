@@ -5,6 +5,13 @@
   var anchor      = document.getElementById('share-anchor');
   var ttSwitch    = document.getElementById('share-tt');   // Create-section switch
 
+  function getPositionKey(tileEl) {
+  // class contains "tile-position-X-Y"
+  var m = (tileEl.className || '').match(/tile-position-(\d+)-(\d+)/);
+  return m ? (m[1] + 'x' + m[2]) : null;
+}
+
+  
   function setParamOnString(urlString, name, on) {
     try {
       var u = new URL(urlString, location.origin);
@@ -29,6 +36,49 @@
     applyToOutputs(!!on);
     setLocationParam('tt', !!on);
   }
+
+    // === Hide duplicate tiles during merges in transparent mode ===
+  function hideDuplicateTilesAtSamePosition() {
+    if (!document.body.classList.contains('tiles-transparent')) return;
+
+    var tiles = Array.from(document.querySelectorAll('.tile-container .tile'));
+    var byPos = new Map();
+
+    tiles.forEach(function (el) {
+      var key = getPositionKey(el);
+      if (!key) return;
+      if (!byPos.has(key)) byPos.set(key, []);
+      byPos.get(key).push(el);
+    });
+
+    byPos.forEach(function (list) {
+      if (list.length <= 1) return;
+      var keep = list.find(el => el.className.indexOf('tile-merged') !== -1)
+              || list.find(el => el.className.indexOf('tile-new') !== -1)
+              || list[list.length - 1];
+      list.forEach(function (el) {
+        el.style.visibility = (el === keep) ? '' : 'hidden';
+      });
+    });
+  }
+
+  // Attach an observer to run it after DOM updates
+  (function () {
+    var wrap = document.querySelector('.tile-container');
+    if (!wrap) return;
+    var pending = false;
+    var obs = new MutationObserver(function () {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(function () {
+        pending = false;
+        hideDuplicateTilesAtSamePosition();
+      });
+    });
+    obs.observe(wrap, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+    hideDuplicateTilesAtSamePosition();
+  })();
+
 
   // Init from URL (?tt=1)
   var params = new URLSearchParams(location.search);
