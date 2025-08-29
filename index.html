@@ -234,6 +234,64 @@
 <!-- keep the existing application startup after this -->
 <script src="js/application.js"></script>
 
+    <script>
+(function () {
+  var locked = false;
+
+  function freezeOnce() {
+    if (locked) return;
+
+    var game  = document.querySelector('.game-container');
+    var grid  = document.querySelector('.grid-container');
+    var tiles = document.querySelector('.tile-container');
+    if (!game) { requestAnimationFrame(freezeOnce); return; }
+
+    // Wait until the engine has done its first layout and we have a non-zero size
+    var r = game.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) { requestAnimationFrame(freezeOnce); return; }
+
+    locked = true;
+    var W = r.width, H = r.height;
+
+    // Lock the computed size inline so later code can't change it
+    [game, grid, tiles].forEach(function (el) {
+      if (!el) return;
+      el.style.width     = W + 'px';
+      el.style.height    = H + 'px';
+      el.style.maxWidth  = W + 'px';
+      el.style.maxHeight = H + 'px';
+    });
+
+    // If any script tries to tweak styles later, snap them back
+    [game, grid, tiles].forEach(function (el) {
+      if (!el) return;
+      new MutationObserver(function (muts) {
+        // Re-apply locked size if someone touched inline styles
+        el.style.width     = W + 'px';
+        el.style.height    = H + 'px';
+        el.style.maxWidth  = W + 'px';
+        el.style.maxHeight = H + 'px';
+      }).observe(el, { attributes: true, attributeFilter: ['style'] });
+    });
+
+    // Ignore later window resizes for this board (reassert locked size)
+    window.addEventListener('resize', function () {
+      if (!locked) return;
+      [game, grid, tiles].forEach(function (el) {
+        if (!el) return;
+        el.style.width     = W + 'px';
+        el.style.height    = H + 'px';
+        el.style.maxWidth  = W + 'px';
+        el.style.maxHeight = H + 'px';
+      });
+    });
+  }
+
+  // Run a couple of frames after startup so the first engine layout has happened
+  requestAnimationFrame(function () { requestAnimationFrame(freezeOnce); });
+})();
+</script>
+
 <script src="js/transparent_tiles.js"></script>
 
     <script>
@@ -733,66 +791,6 @@
     if (applyBtn) applyBtn.addEventListener('click', applyBulk);
     if (clearBtn) clearBtn.addEventListener('click', clearBulk);
   });
-})();
-</script>
-
-
-
-<script>
-(function () {
-  var locked = false;
-
-  function freezeOnce() {
-    if (locked) return;
-
-    var game  = document.querySelector('.game-container');
-    var grid  = document.querySelector('.grid-container');
-    var tiles = document.querySelector('.tile-container');
-    if (!game) { requestAnimationFrame(freezeOnce); return; }
-
-    // Wait until the engine has done its first layout and we have a non-zero size
-    var r = game.getBoundingClientRect();
-    if (r.width === 0 || r.height === 0) { requestAnimationFrame(freezeOnce); return; }
-
-    locked = true;
-    var W = r.width, H = r.height;
-
-    // Lock the computed size inline so later code can't change it
-    [game, grid, tiles].forEach(function (el) {
-      if (!el) return;
-      el.style.width     = W + 'px';
-      el.style.height    = H + 'px';
-      el.style.maxWidth  = W + 'px';
-      el.style.maxHeight = H + 'px';
-    });
-
-    // If any script tries to tweak styles later, snap them back
-    [game, grid, tiles].forEach(function (el) {
-      if (!el) return;
-      new MutationObserver(function (muts) {
-        // Re-apply locked size if someone touched inline styles
-        el.style.width     = W + 'px';
-        el.style.height    = H + 'px';
-        el.style.maxWidth  = W + 'px';
-        el.style.maxHeight = H + 'px';
-      }).observe(el, { attributes: true, attributeFilter: ['style'] });
-    });
-
-    // Ignore later window resizes for this board (reassert locked size)
-    window.addEventListener('resize', function () {
-      if (!locked) return;
-      [game, grid, tiles].forEach(function (el) {
-        if (!el) return;
-        el.style.width     = W + 'px';
-        el.style.height    = H + 'px';
-        el.style.maxWidth  = W + 'px';
-        el.style.maxHeight = H + 'px';
-      });
-    });
-  }
-
-  // Run a couple of frames after startup so the first engine layout has happened
-  requestAnimationFrame(function () { requestAnimationFrame(freezeOnce); });
 })();
 </script>
 
