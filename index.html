@@ -731,6 +731,26 @@
 })();
 </script>
 
+<script>
+(function () {
+  function lockContainerToBoard() {
+    var c = document.querySelector('.container');
+    var g = document.querySelector('.game-container');
+    if (!c || !g) return;
+
+    // Wait until the board has a real size
+    var r = g.getBoundingClientRect();
+    if (!r.width) { requestAnimationFrame(lockContainerToBoard); return; }
+
+    // Freeze the container width to the board width (px), no more viewport-following
+    document.documentElement.style.setProperty('--container-lock', r.width + 'px');
+  }
+
+  // Run a couple frames after paint to ensure board layout is done
+  requestAnimationFrame(() => requestAnimationFrame(lockContainerToBoard));
+})();
+</script>
+
     
 </body>
 
