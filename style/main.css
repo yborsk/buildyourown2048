@@ -1237,8 +1237,9 @@ html[data-show-nums="0"] .tile-badge { display: none !important; }
   display: block;         /* remove any inline-gap from default inline images */
 }
 
-/* ===== Transparent Tiles mode (tt=1) =================================== */
-/* Switch the tile art to the *-clear.png set and hide per-tile images/numbers */
+/* ===== Transparent Tiles mode (tt=1): swap art, clear bg, hide <img> ===== */
+
+/* 1) Swap to the -clear.png set */
 body.tiles-transparent .tile.tile-2    .tile-inner { background-image: url('../img/2-clear.png') !important; }
 body.tiles-transparent .tile.tile-4    .tile-inner { background-image: url('../img/4-clear.png') !important; }
 body.tiles-transparent .tile.tile-8    .tile-inner { background-image: url('../img/8-clear.png') !important; }
@@ -1251,30 +1252,16 @@ body.tiles-transparent .tile.tile-512  .tile-inner { background-image: url('../i
 body.tiles-transparent .tile.tile-1024 .tile-inner { background-image: url('../img/1024-clear.png') !important; }
 body.tiles-transparent .tile.tile-2048 .tile-inner { background-image: url('../img/2048-clear.png') !important; }
 
-/* Hide any per-tile <img> that HTMLActuator injects when custom images are used */
-body.tiles-transparent .tile .tile-inner img { display: none !important; }
-
-/* Make sure fallback numbers don’t show through */
-body.tiles-transparent .tile .tile-inner {
-  color: transparent !important;
-  text-shadow: none !important;
-}
-
-/* === Transparent Tiles mode (tt=1) overrides === */
-
-/* Remove background color and shadow from all tiles */
+/* 2) Make the tile background itself transparent (overrides base .tile-inner) */
 body.tiles-transparent .tile .tile-inner {
   background: transparent !important;
   box-shadow: none !important;
+  background-size: 100% 100% !important;   /* scale with tile size */
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
 }
 
-/* Hide any custom <img> art injected into tile-inner */
+/* 3) Hide any custom <img> an actuator injects into tile-inner */
 body.tiles-transparent .tile .tile-inner img {
   display: none !important;
-}
-
-/* Optionally hide text numbers too (if you want full clear) */
-body.tiles-transparent .tile .tile-inner {
-  color: transparent !important;
-  text-shadow: none !important;
 }
