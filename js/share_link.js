@@ -44,8 +44,15 @@
       params["tile" + v] = url;
     }
 
-    if (document.getElementById('share-tt')?.checked) {
+    // Transparent Tiles handling
+  const ttSwitch = document.getElementById("share-tt");
+  const numsSwitch = document.getElementById("share-nums");
+  if (ttSwitch && ttSwitch.checked) {
     params.tt = "1";
+    params.nums = "0";       // force nums=0 when tt=1
+    if (numsSwitch) numsSwitch.checked = false; // reflect in UI
+  } else if (numsSwitch && !numsSwitch.checked) {
+    params.nums = "0";
   }
     const qs = buildQuery(params);
     return currentBaseUrl() + (qs ? "?" + qs : "");
