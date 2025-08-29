@@ -33,6 +33,13 @@
 
   function applyTransparent(on) {
     body.classList.toggle('tiles-transparent', !!on);
+
+  if (on) {
+    // Force nums=0 when transparent mode is on
+    var numsSwitch = document.getElementById('share-nums');
+    if (numsSwitch) numsSwitch.checked = false;
+  }
+    
     applyToOutputs(!!on);
     setLocationParam('tt', !!on);
   }
