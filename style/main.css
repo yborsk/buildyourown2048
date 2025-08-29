@@ -1237,9 +1237,9 @@ html[data-show-nums="0"] .tile-badge { display: none !important; }
   display: block;         /* remove any inline-gap from default inline images */
 }
 
-/* ===== Transparent Tiles mode (tt=1): swap art, clear bg, hide <img> ===== */
+/* ===== Transparent Tiles mode (tt=1) overrides ===== */
 
-/* 1) Swap to the -clear.png set */
+/* Swap to the -clear.png set */
 body.tiles-transparent .tile.tile-2    .tile-inner { background-image: url('../img/2-clear.png') !important; }
 body.tiles-transparent .tile.tile-4    .tile-inner { background-image: url('../img/4-clear.png') !important; }
 body.tiles-transparent .tile.tile-8    .tile-inner { background-image: url('../img/8-clear.png') !important; }
@@ -1252,16 +1252,17 @@ body.tiles-transparent .tile.tile-512  .tile-inner { background-image: url('../i
 body.tiles-transparent .tile.tile-1024 .tile-inner { background-image: url('../img/1024-clear.png') !important; }
 body.tiles-transparent .tile.tile-2048 .tile-inner { background-image: url('../img/2048-clear.png') !important; }
 
-/* 2) Make the tile background itself transparent (overrides base .tile-inner) */
+/* Transparent base + scaling + opacity */
 body.tiles-transparent .tile .tile-inner {
   background: transparent !important;
   box-shadow: none !important;
-  background-size: 100% 100% !important;   /* scale with tile size */
+  background-size: 100% 100% !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
+  opacity: 0.5 !important;   /* <-- 50% opacity */
 }
 
-/* 3) Hide any custom <img> an actuator injects into tile-inner */
+/* Hide custom <img> overlays */
 body.tiles-transparent .tile .tile-inner img {
   display: none !important;
 }
