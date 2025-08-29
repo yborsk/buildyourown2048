@@ -32,8 +32,6 @@
   function applyOverridesToGame(overrides) {
     // Merge with whatever images already exist
     window.customTileImages = Object.assign({}, window.customTileImages || {}, overrides);
-    // Nudge some layouts to repaint
-    window.dispatchEvent(new Event("resize"));
   }
 
   function generateLink() {
