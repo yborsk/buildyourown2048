@@ -735,6 +735,36 @@
   });
 })();
 </script>
+
+<script>
+(function() {
+  function freezeContainerSize() {
+    var game = document.querySelector('.game-container');
+    if (!game) return;
+    var rect = game.getBoundingClientRect();
+    // Lock in the first computed size
+    game.style.width  = rect.width + 'px';
+    game.style.height = rect.height + 'px';
+
+    // Also lock grid + tile container if needed
+    var grids = document.querySelectorAll('.grid-container, .tile-container');
+    grids.forEach(el => {
+      el.style.width  = rect.width + 'px';
+      el.style.height = rect.height + 'px';
+    });
+
+    // After freezing once, stop listening to resizes
+    window.removeEventListener('resize', freezeContainerSize);
+  }
+
+  // Run once when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", freezeContainerSize);
+  } else {
+    freezeContainerSize();
+  }
+})();
+</script>
     
 </body>
 
