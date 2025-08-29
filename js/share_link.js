@@ -43,6 +43,10 @@
     for (const [v, url] of Object.entries(overrides)) {
       params["tile" + v] = url;
     }
+
+    if (document.getElementById('share-tt')?.checked) {
+    params.tt = "1";
+  }
     const qs = buildQuery(params);
     return currentBaseUrl() + (qs ? "?" + qs : "");
   }
