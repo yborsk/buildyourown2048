@@ -1113,6 +1113,7 @@ html, body {
 
 .container {
   /* match the width to the board so header/scores align visually */
+  width: var(--board-size) !important;
   max-width: calc(100vw - var(--gutter) * 2);
   margin: 0 auto;
 }
