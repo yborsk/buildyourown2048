@@ -736,35 +736,66 @@
 })();
 </script>
 
-<script>
-(function() {
-  function freezeContainerSize() {
-    var game = document.querySelector('.game-container');
-    if (!game) return;
-    var rect = game.getBoundingClientRect();
-    // Lock in the first computed size
-    game.style.width  = rect.width + 'px';
-    game.style.height = rect.height + 'px';
 
-    // Also lock grid + tile container if needed
-    var grids = document.querySelectorAll('.grid-container, .tile-container');
-    grids.forEach(el => {
-      el.style.width  = rect.width + 'px';
-      el.style.height = rect.height + 'px';
+
+<script>
+(function () {
+  var locked = false;
+
+  function freezeOnce() {
+    if (locked) return;
+
+    var game  = document.querySelector('.game-container');
+    var grid  = document.querySelector('.grid-container');
+    var tiles = document.querySelector('.tile-container');
+    if (!game) { requestAnimationFrame(freezeOnce); return; }
+
+    // Wait until the engine has done its first layout and we have a non-zero size
+    var r = game.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) { requestAnimationFrame(freezeOnce); return; }
+
+    locked = true;
+    var W = r.width, H = r.height;
+
+    // Lock the computed size inline so later code can't change it
+    [game, grid, tiles].forEach(function (el) {
+      if (!el) return;
+      el.style.width     = W + 'px';
+      el.style.height    = H + 'px';
+      el.style.maxWidth  = W + 'px';
+      el.style.maxHeight = H + 'px';
     });
 
-    // After freezing once, stop listening to resizes
-    window.removeEventListener('resize', freezeContainerSize);
+    // If any script tries to tweak styles later, snap them back
+    [game, grid, tiles].forEach(function (el) {
+      if (!el) return;
+      new MutationObserver(function (muts) {
+        // Re-apply locked size if someone touched inline styles
+        el.style.width     = W + 'px';
+        el.style.height    = H + 'px';
+        el.style.maxWidth  = W + 'px';
+        el.style.maxHeight = H + 'px';
+      }).observe(el, { attributes: true, attributeFilter: ['style'] });
+    });
+
+    // Ignore later window resizes for this board (reassert locked size)
+    window.addEventListener('resize', function () {
+      if (!locked) return;
+      [game, grid, tiles].forEach(function (el) {
+        if (!el) return;
+        el.style.width     = W + 'px';
+        el.style.height    = H + 'px';
+        el.style.maxWidth  = W + 'px';
+        el.style.maxHeight = H + 'px';
+      });
+    });
   }
 
-  // Run once when DOM is ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", freezeContainerSize);
-  } else {
-    freezeContainerSize();
-  }
+  // Run a couple of frames after startup so the first engine layout has happened
+  requestAnimationFrame(function () { requestAnimationFrame(freezeOnce); });
 })();
 </script>
+
     
 </body>
 
