@@ -1286,3 +1286,17 @@ body.tiles-transparent .tile .tile-inner img {
   /* Let them stretch with the game-container box */
   width: 100% !important;
   height: 100%
+
+ /* === Stop the outer wrapper from tracking viewport-based --board-size === */
+.container {
+  width: auto !important;          /* don’t bind to --board-size */
+  max-width: 560px;                /* match your board’s cap */
+  margin: 0 auto;                  /* keep it centered */
+}
+
+/* Optional: keep headings/scores from forcing wider widths */
+.heading,
+.above-game {
+  max-width: 100%;
+  overflow: hidden;
+}
