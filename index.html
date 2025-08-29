@@ -583,46 +583,30 @@
 
 <script>
   (function () {
-    function fitBoardToViewport() {
+    function syncBoardSize() {
       var root = document.documentElement;
       var board = document.querySelector('.game-container');
       if (!board) return;
 
-      // Read current gutter (defaults to 8px if not set)
-      var cs = getComputedStyle(root);
-      var gutter = parseFloat(cs.getPropertyValue('--gutter')) || 8;
-
-      var vw = window.innerWidth;
-      var vh = window.innerHeight;
-
-      // Distance from top of viewport to the top edge of the board (includes header/scores)
-      var topToBoard = board.getBoundingClientRect().top;
-
-      // Board must fit within width gutters AND the remaining vertical space
-      var maxByWidth  = vw - gutter * 2;
-      var maxByHeight = vh - topToBoard - gutter;
-
-      // Guard against negatives; floor to whole pixels for crispness
-      var size = Math.max(0, Math.min(maxByWidth, maxByHeight)) | 0;
-
-      // Expose to CSS
+      // Measure the rendered board and expose its width to CSS variables.
+      var size = board.getBoundingClientRect().width;
       root.style.setProperty('--board-size-dyn', size + 'px');
     }
 
-    // Run on load and on resize/orientation changes.
-    window.addEventListener('resize', fitBoardToViewport, { passive: true });
-    window.addEventListener('orientationchange', fitBoardToViewport);
+    // Update when the viewport size changes.
+    window.addEventListener('resize', syncBoardSize, { passive: true });
+    window.addEventListener('orientationchange', syncBoardSize);
 
-    // Run after layout paints (handles webfonts / header wrapping)
+    // Run after layout paints (handles webfonts / late layout shifts)
     document.addEventListener('DOMContentLoaded', function () {
-      fitBoardToViewport();
-      // A couple of post-load passes to catch late layout shifts
-      setTimeout(fitBoardToViewport, 0);
-      setTimeout(fitBoardToViewport, 250);
-      setTimeout(fitBoardToViewport, 1000);
+      syncBoardSize();
+      setTimeout(syncBoardSize, 0);
+      setTimeout(syncBoardSize, 250);
+      setTimeout(syncBoardSize, 1000);
     });
   })();
 </script>
+
 
 <script>
 (function () {
